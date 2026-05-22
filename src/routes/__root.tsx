@@ -72,14 +72,20 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "LendAI — Multi-Agent Lending Workflows" },
+      {
+        name: "description",
+        content:
+          "LendAI orchestrates document ingestion, credit profiling, rule-based underwriting and AI-powered decisioning agents end-to-end.",
+      },
+      { name: "author", content: "LendAI" },
+      { property: "og:title", content: "LendAI — Multi-Agent Lending Workflows" },
+      {
+        property: "og:description",
+        content: "Production-ready prototype of an agentic AI lending pipeline.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@Lovable" },
     ],
     links: [
       {
