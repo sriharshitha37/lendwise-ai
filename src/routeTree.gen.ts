@@ -9,9 +9,15 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SandboxRouteImport } from './routes/sandbox'
 import { Route as ProcessRouteImport } from './routes/process'
 import { Route as IndexRouteImport } from './routes/index'
 
+const SandboxRoute = SandboxRouteImport.update({
+  id: '/sandbox',
+  path: '/sandbox',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProcessRoute = ProcessRouteImport.update({
   id: '/process',
   path: '/process',
@@ -26,31 +32,42 @@ const IndexRoute = IndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/process': typeof ProcessRoute
+  '/sandbox': typeof SandboxRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/process': typeof ProcessRoute
+  '/sandbox': typeof SandboxRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/process': typeof ProcessRoute
+  '/sandbox': typeof SandboxRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/process'
+  fullPaths: '/' | '/process' | '/sandbox'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/process'
-  id: '__root__' | '/' | '/process'
+  to: '/' | '/process' | '/sandbox'
+  id: '__root__' | '/' | '/process' | '/sandbox'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ProcessRoute: typeof ProcessRoute
+  SandboxRoute: typeof SandboxRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sandbox': {
+      id: '/sandbox'
+      path: '/sandbox'
+      fullPath: '/sandbox'
+      preLoaderRoute: typeof SandboxRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/process': {
       id: '/process'
       path: '/process'
@@ -71,6 +88,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ProcessRoute: ProcessRoute,
+  SandboxRoute: SandboxRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
