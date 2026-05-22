@@ -4,21 +4,13 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/*
- * Design system definition.
- *
- * The @theme inline block maps CSS custom properties to Tailwind utility
- * classes (e.g. --color-primary -> bg-primary, text-primary).
- *
- * The :root and .dark blocks define the actual color values using oklch.
- * All colors MUST use oklch format.
- *
- * To add a new semantic color:
- * 1. Add the variable to :root (light value) and .dark (dark value)
- * 2. Register it in @theme inline as --color-<name>: var(--<name>)
- */
-
 @theme inline {
+  --font-sans:
+    "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Sora", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono:
+    "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -66,49 +58,100 @@
 }
 
 :root {
-  --radius: 0.75rem;
-  --background: oklch(0.985 0.006 250);
-  --foreground: oklch(0.18 0.04 260);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.18 0.04 260);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.18 0.04 260);
-  --primary: oklch(0.52 0.18 263);
-  --primary-foreground: oklch(0.99 0 0);
-  --primary-glow: oklch(0.7 0.17 263);
-  --secondary: oklch(0.96 0.012 250);
-  --secondary-foreground: oklch(0.25 0.05 260);
-  --muted: oklch(0.96 0.012 250);
-  --muted-foreground: oklch(0.5 0.03 260);
-  --accent: oklch(0.93 0.05 200);
-  --accent-foreground: oklch(0.25 0.05 260);
-  --success: oklch(0.62 0.15 155);
-  --success-foreground: oklch(0.99 0 0);
-  --warning: oklch(0.77 0.16 75);
-  --warning-foreground: oklch(0.2 0.05 60);
-  --destructive: oklch(0.58 0.22 25);
-  --destructive-foreground: oklch(0.99 0 0);
-  --border: oklch(0.91 0.012 255);
-  --input: oklch(0.91 0.012 255);
-  --ring: oklch(0.6 0.16 263);
-  --chart-1: oklch(0.55 0.2 263);
-  --chart-2: oklch(0.62 0.15 155);
-  --chart-3: oklch(0.77 0.16 75);
-  --chart-4: oklch(0.58 0.22 25);
-  --chart-5: oklch(0.6 0.14 200);
-  --sidebar: oklch(0.2 0.04 263);
-  --sidebar-foreground: oklch(0.96 0.012 250);
-  --sidebar-primary: oklch(0.7 0.17 263);
-  --sidebar-primary-foreground: oklch(0.99 0 0);
-  --sidebar-accent: oklch(0.26 0.05 263);
-  --sidebar-accent-foreground: oklch(0.96 0.012 250);
-  --sidebar-border: oklch(0.3 0.05 263);
-  --sidebar-ring: oklch(0.6 0.16 263);
-  --gradient-primary: linear-gradient(135deg, oklch(0.5 0.19 263), oklch(0.7 0.17 263));
-  --gradient-surface: linear-gradient(180deg, oklch(0.99 0.005 250), oklch(0.96 0.012 250));
-  --shadow-elegant: 0 12px 32px -16px color-mix(in oklab, oklch(0.52 0.18 263) 35%, transparent);
-}
+  --radius: 0.875rem;
 
+  /* Canvas — warm off-white, Ramp/Brex-style */
+  --background: oklch(0.985 0.004 95);
+  --foreground: oklch(0.18 0.02 260);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.18 0.02 260);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.18 0.02 260);
+
+  /* Signature accent — deep ink primary, electric lime secondary accent */
+  --primary: oklch(0.22 0.03 260);
+  --primary-foreground: oklch(0.985 0.004 95);
+  --primary-glow: oklch(0.42 0.05 260);
+
+  --secondary: oklch(0.96 0.008 95);
+  --secondary-foreground: oklch(0.22 0.03 260);
+
+  --muted: oklch(0.955 0.006 95);
+  --muted-foreground: oklch(0.5 0.02 260);
+
+  /* Electric lime — the signature accent */
+  --accent: oklch(0.92 0.2 125);
+  --accent-foreground: oklch(0.18 0.04 130);
+
+  --success: oklch(0.66 0.16 155);
+  --success-foreground: oklch(0.99 0 0);
+  --warning: oklch(0.81 0.16 75);
+  --warning-foreground: oklch(0.22 0.06 60);
+  --destructive: oklch(0.62 0.22 25);
+  --destructive-foreground: oklch(0.99 0 0);
+
+  --border: oklch(0.91 0.006 95);
+  --input: oklch(0.91 0.006 95);
+  --ring: oklch(0.55 0.04 260);
+
+  --chart-1: oklch(0.22 0.03 260);
+  --chart-2: oklch(0.66 0.16 155);
+  --chart-3: oklch(0.81 0.16 75);
+  --chart-4: oklch(0.62 0.22 25);
+  --chart-5: oklch(0.92 0.2 125);
+
+  /* Dark editorial sidebar */
+  --sidebar: oklch(0.16 0.015 260);
+  --sidebar-foreground: oklch(0.94 0.005 95);
+  --sidebar-primary: oklch(0.92 0.2 125);
+  --sidebar-primary-foreground: oklch(0.18 0.04 130);
+  --sidebar-accent: oklch(0.22 0.02 260);
+  --sidebar-accent-foreground: oklch(0.99 0.004 95);
+  --sidebar-border: oklch(0.26 0.015 260);
+  --sidebar-ring: oklch(0.92 0.2 125);
+
+  --gradient-primary: linear-gradient(
+    135deg,
+    oklch(0.92 0.2 125),
+    oklch(0.85 0.18 145)
+  );
+  --gradient-ink: linear-gradient(
+    180deg,
+    oklch(0.22 0.03 260),
+    oklch(0.12 0.02 260)
+  );
+  --gradient-mesh: radial-gradient(
+      60% 50% at 15% 0%,
+      color-mix(in oklab, oklch(0.92 0.2 125) 22%, transparent),
+      transparent 60%
+    ),
+    radial-gradient(
+      40% 40% at 95% 10%,
+      color-mix(in oklab, oklch(0.78 0.14 200) 18%, transparent),
+      transparent 60%
+    ),
+    radial-gradient(
+      35% 30% at 70% 80%,
+      color-mix(in oklab, oklch(0.85 0.15 30) 14%, transparent),
+      transparent 60%
+    );
+  --gradient-surface: linear-gradient(
+    180deg,
+    oklch(1 0 0),
+    oklch(0.97 0.006 95)
+  );
+
+  --shadow-elegant:
+    0 1px 2px oklch(0.18 0.02 260 / 0.04),
+    0 8px 24px -12px oklch(0.18 0.02 260 / 0.12);
+  --shadow-float:
+    0 1px 2px oklch(0.18 0.02 260 / 0.05),
+    0 20px 48px -20px oklch(0.18 0.02 260 / 0.18);
+  --shadow-accent: 0 12px 30px -14px color-mix(in oklab, oklch(0.92 0.2 125) 65%, transparent);
+
+  --grid-dot:
+    radial-gradient(oklch(0.18 0.02 260 / 0.06) 1px, transparent 1px);
+}
 
 .dark {
   --background: oklch(0.129 0.042 264.695);
@@ -123,8 +166,8 @@
   --secondary-foreground: oklch(0.984 0.003 247.858);
   --muted: oklch(0.279 0.041 260.031);
   --muted-foreground: oklch(0.704 0.04 256.788);
-  --accent: oklch(0.279 0.041 260.031);
-  --accent-foreground: oklch(0.984 0.003 247.858);
+  --accent: oklch(0.92 0.2 125);
+  --accent-foreground: oklch(0.18 0.04 130);
   --destructive: oklch(0.704 0.191 22.216);
   --destructive-foreground: oklch(0.984 0.003 247.858);
   --border: oklch(1 0 0 / 10%);
@@ -150,8 +193,30 @@
     border-color: var(--color-border);
   }
 
+  html,
+  body {
+    font-family: var(--font-sans);
+    font-feature-settings: "cv11", "ss01", "ss03";
+    -webkit-font-smoothing: antialiased;
+  }
+
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+  }
+
+  .font-display {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+  }
+}
+
+@layer utilities {
+  .bg-dot-grid {
+    background-image: var(--grid-dot);
+    background-size: 22px 22px;
+  }
+  .bg-mesh {
+    background-image: var(--gradient-mesh);
   }
 }
