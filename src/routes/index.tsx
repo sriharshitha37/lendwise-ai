@@ -3,6 +3,7 @@ import { AppShell } from "@/components/lendai/AppShell";
 import { StatusBadge, RiskPill } from "@/components/lendai/StatusBadge";
 import { useStore } from "@/lib/lendai-store";
 import {
+  Activity,
   Files,
   Clock,
   CheckCircle2,
@@ -14,7 +15,7 @@ import {
   Scale,
   Sparkles,
   ArrowUpRight,
-} from "lucide-react";
+} from "@/lib/icons";
 import { Button } from "@/components/ui/button";
 import { MetricCard } from "@/components/lendai/MetricCard";
 
