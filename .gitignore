@@ -30,3 +30,15 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Python backend
+backend/.venv/
+backend/.env
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# Deploy / build
+.vercel
+dist
+.env.local
+.env*.local

@@ -3,6 +3,8 @@ import {
   LayoutDashboard,
   Workflow,
   SlidersHorizontal,
+  MessageCircle,
+  BarChart3,
   Sparkles,
   ArrowUpRight,
 } from "lucide-react";
@@ -10,7 +12,9 @@ import { cn } from "@/lib/utils";
 
 const nav = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard },
+  { to: "/analytics", label: "Analytics", icon: BarChart3 },
   { to: "/process", label: "Process Application", icon: Workflow },
+  { to: "/chat", label: "Loan Assistant", icon: MessageCircle },
   { to: "/sandbox", label: "Underwriting Sandbox", icon: SlidersHorizontal },
 ] as const;
 

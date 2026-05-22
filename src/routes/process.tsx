@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useRef, useState } from "react";
+import { toast } from "sonner";
 import { AppShell } from "@/components/lendai/AppShell";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -25,6 +26,18 @@ import {
   RotateCcw,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { ExtractedDocumentCard } from "@/components/lendai/ExtractedDocumentCard";
+import { LoanApplicationForm } from "@/components/lendai/LoanApplicationForm";
+import {
+  extractDocument,
+  getApiErrorMessage,
+  uploadDocument,
+} from "@/lib/api";
+import {
+  isFallbackExtraction,
+  toExtractedDocumentFields,
+  type ExtractedDocumentFields,
+} from "@/types/api";
 
 export const Route = createFileRoute("/process")({
   head: () => ({
@@ -72,6 +85,11 @@ const steps: { key: AgentKey; label: string; icon: typeof ScanLine; desc: string
 function ProcessPage() {
   const [selected, setSelected] = useState<Applicant>(testProfiles[1]);
   const [uploaded, setUploaded] = useState<string | null>(null);
+  const [uploadPhase, setUploadPhase] = useState<"idle" | "uploading" | "extracting">("idle");
+  const [extracted, setExtracted] = useState<ExtractedDocumentFields | null>(null);
+  const [extractError, setExtractError] = useState<string | null>(null);
+
+  const isDocumentProcessing = uploadPhase !== "idle";
   const [stepStates, setStepStates] = useState<Record<AgentKey, StepState>>({
     ingestion: "idle",
     credit: "idle",
@@ -88,6 +106,9 @@ function ProcessPage() {
     setStepStates({ ingestion: "idle", credit: "idle", underwriter: "idle", decision: "idle" });
     setLogs([]);
     setDecision(null);
+    setExtracted(null);
+    setExtractError(null);
+    setUploadPhase("idle");
   }, []);
 
   const run = useCallback(async () => {
@@ -158,11 +179,58 @@ function ProcessPage() {
     setRunning(false);
   }, [selected, reset]);
 
+  const isPdf = (file: File) =>
+    file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
+
+  const handleDocumentUpload = useCallback(async (file: File) => {
+    if (!isPdf(file)) {
+      toast.error("Only PDF files are allowed");
+      return;
+    }
+
+    setUploadPhase("uploading");
+    setUploaded(file.name);
+    setExtracted(null);
+    setExtractError(null);
+
+    let uploadSucceeded = false;
+
+    try {
+      const { filename } = await uploadDocument(file);
+      uploadSucceeded = true;
+      setUploaded(filename);
+      toast.success("Document uploaded successfully");
+
+      setUploadPhase("extracting");
+      const extraction = await extractDocument(file);
+      const fields = toExtractedDocumentFields(extraction);
+      setExtracted(fields);
+
+      if (isFallbackExtraction(extraction.source)) {
+        toast.warning("Using demo extraction data — AI service unavailable");
+      } else {
+        toast.success("Document fields extracted");
+      }
+    } catch (error) {
+      const message = getApiErrorMessage(error);
+      if (uploadSucceeded) {
+        setExtractError(message);
+        toast.error("Could not extract document fields");
+      } else {
+        setUploaded(null);
+        toast.error(message);
+      }
+    } finally {
+      setUploadPhase("idle");
+    }
+  }, []);
+
   const onDrop = (e: React.DragEvent<HTMLLabelElement>) => {
     e.preventDefault();
     setDragOver(false);
+    if (isDocumentProcessing) return;
     const f = e.dataTransfer.files[0];
-    if (f) setUploaded(f.name);
+    if (f) void handleDocumentUpload(f);
   };
 
   return (
@@ -190,12 +258,15 @@ function ProcessPage() {
                   ref={dropRef}
                   onDragOver={(e) => {
                     e.preventDefault();
-                    setDragOver(true);
+                    if (!isDocumentProcessing) setDragOver(true);
                   }}
                   onDragLeave={() => setDragOver(false)}
                   onDrop={onDrop}
                   className={cn(
-                    "block cursor-pointer rounded-xl border-2 border-dashed p-6 text-center transition-colors",
+                    "block rounded-xl border-2 border-dashed p-6 text-center transition-colors",
+                    isDocumentProcessing
+                      ? "cursor-wait opacity-80"
+                      : "cursor-pointer",
                     dragOver
                       ? "border-primary bg-primary/5"
                       : "border-border hover:border-primary/50 hover:bg-muted/40",
@@ -203,27 +274,55 @@ function ProcessPage() {
                 >
                   <input
                     type="file"
-                    accept="application/pdf,image/*"
+                    accept="application/pdf,.pdf"
                     className="hidden"
+                    disabled={isDocumentProcessing}
                     onChange={(e) => {
                       const f = e.target.files?.[0];
-                      if (f) setUploaded(f.name);
+                      if (f) void handleDocumentUpload(f);
+                      e.target.value = "";
                     }}
                   />
-                  <UploadCloud className="size-7 mx-auto text-primary" />
+                  {isDocumentProcessing ? (
+                    <Loader2 className="size-7 mx-auto text-primary animate-spin" />
+                  ) : (
+                    <UploadCloud className="size-7 mx-auto text-primary" />
+                  )}
                   <div className="mt-3 text-sm font-medium">
-                    {uploaded ?? "Drop Aadhaar / PAN PDF or image"}
+                    {uploadPhase === "uploading"
+                      ? "Uploading…"
+                      : uploadPhase === "extracting"
+                        ? "Extracting fields…"
+                        : uploaded ?? "Drop Aadhaar / PAN PDF"}
                   </div>
                   <div className="text-xs text-muted-foreground mt-1">
-                    PDF, JPG, PNG · processed in-browser (mock)
+                    {uploaded && !isDocumentProcessing
+                      ? `Saved as ${uploaded}`
+                      : "PDF only · max 10 MB"}
                   </div>
                 </label>
               </CardContent>
             </Card>
 
+            <ExtractedDocumentCard
+              data={extracted}
+              loading={isDocumentProcessing}
+              loadingMessage={
+                uploadPhase === "uploading"
+                  ? "Uploading document…"
+                  : "Extracting document fields…"
+              }
+              error={extractError}
+            />
+
+            <LoanApplicationForm
+              defaultIncome={selected.income}
+              defaultCreditScore={selected.creditScore}
+            />
+
             <Card className="border-border/70">
               <CardHeader>
-                <CardTitle className="text-base">2. Or pick a test profile</CardTitle>
+                <CardTitle className="text-base">3. Or pick a test profile</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
                 {testProfiles.map((p) => {
