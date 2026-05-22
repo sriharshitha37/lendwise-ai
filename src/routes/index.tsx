@@ -1,6 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AppShell } from "@/components/lendai/AppShell";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusBadge, RiskPill } from "@/components/lendai/StatusBadge";
 import { useStore } from "@/lib/lendai-store";
 import {
@@ -14,6 +13,10 @@ import {
   Gauge,
   Scale,
   Sparkles,
+  TrendingUp,
+  TrendingDown,
+  Activity,
+  ArrowUpRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -44,165 +47,261 @@ function Dashboard() {
   const pending = apps.filter((a) => a.status === "pending" || a.status === "flagged").length;
   const approved = apps.filter((a) => a.status === "approved").length;
   const rejected = apps.filter((a) => a.status === "rejected").length;
+  const approvalRate = total ? Math.round((approved / total) * 100) : 0;
 
   return (
     <AppShell>
-      <div className="px-6 md:px-10 py-8 space-y-8 max-w-[1400px] mx-auto">
-        <header className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <div className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
-              Loan Operations
+      <div className="relative overflow-hidden border-b border-border">
+        <div className="absolute inset-0 bg-mesh opacity-90 pointer-events-none" />
+        <div className="absolute inset-0 bg-dot-grid pointer-events-none [mask-image:linear-gradient(180deg,black,transparent_80%)]" />
+        <div className="relative px-6 md:px-12 pt-10 md:pt-14 pb-8 max-w-[1400px] mx-auto">
+          <div className="flex flex-wrap items-end justify-between gap-6">
+            <div className="max-w-2xl">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-background/70 backdrop-blur border border-border text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                <span className="size-1.5 rounded-full bg-accent shadow-[0_0_10px] shadow-accent/70" />
+                Loan Operations · Live
+              </div>
+              <h1 className="font-display text-4xl md:text-[52px] font-semibold tracking-tight mt-5 leading-[1.02]">
+                Underwriting,
+                <br />
+                <span className="relative inline-block">
+                  on autopilot.
+                  <span className="absolute left-0 right-0 -bottom-1 h-3 bg-accent/60 -z-0 rounded-sm" />
+                </span>
+              </h1>
+              <p className="text-muted-foreground text-base mt-4 max-w-lg leading-relaxed">
+                The agentic intelligence layer for your lending desk — ingestion,
+                credit profiling and risk decisioning, end-to-end.
+              </p>
             </div>
-            <h1 className="text-3xl font-semibold tracking-tight mt-1">Underwriting Dashboard</h1>
-            <p className="text-muted-foreground text-sm mt-1">
-              Live view of all applications flowing through the LendAI agent mesh.
-            </p>
+            <div className="flex items-center gap-2">
+              <Button asChild variant="outline" size="lg" className="rounded-full">
+                <Link to="/sandbox">Tune policy</Link>
+              </Button>
+              <Button
+                asChild
+                size="lg"
+                className="rounded-full bg-foreground text-background hover:bg-foreground/90 shadow-[var(--shadow-elegant)]"
+              >
+                <Link to="/process">
+                  New Application <ArrowUpRight className="size-4" />
+                </Link>
+              </Button>
+            </div>
           </div>
-          <Button asChild size="lg" className="shadow-[var(--shadow-elegant)]">
-            <Link to="/process">
-              New Application <ArrowRight className="size-4" />
-            </Link>
-          </Button>
-        </header>
+        </div>
+      </div>
 
+      <div className="px-6 md:px-12 py-8 space-y-8 max-w-[1400px] mx-auto">
         <section className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <MetricCard
             label="Total Applications"
             value={total}
+            delta={`${approvalRate}% approval`}
+            trend="up"
             icon={Files}
-            tint="bg-primary/10 text-primary"
+            accent
           />
           <MetricCard
-            label="Pending Verification"
+            label="Pending Review"
             value={pending}
+            delta="Awaiting agent"
+            trend="flat"
             icon={Clock}
-            tint="bg-warning/20 text-warning-foreground"
           />
           <MetricCard
             label="Approved"
             value={approved}
+            delta="+2 today"
+            trend="up"
             icon={CheckCircle2}
-            tint="bg-success/15 text-success"
+            tone="success"
           />
           <MetricCard
             label="Rejected"
             value={rejected}
+            delta="Policy block"
+            trend="down"
             icon={XCircle}
-            tint="bg-destructive/15 text-destructive"
+            tone="destructive"
           />
         </section>
 
-        <Card className="border-border/70">
-          <CardHeader className="flex flex-row items-center justify-between gap-4">
+        <section className="bg-card border border-border rounded-3xl overflow-hidden shadow-[var(--shadow-elegant)]">
+          <div className="flex items-center justify-between gap-4 px-6 md:px-8 py-6 border-b border-border">
             <div>
-              <CardTitle className="text-lg">Active Workflows</CardTitle>
-              <p className="text-xs text-muted-foreground mt-1">
-                Real-time view of applicants, current agent ownership, and risk score.
+              <h2 className="font-display text-xl font-semibold tracking-tight">
+                Active workflows
+              </h2>
+              <p className="text-sm text-muted-foreground mt-0.5">
+                Real-time orchestration of agent-led underwriting.
               </p>
             </div>
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <span className="size-2 rounded-full bg-success animate-pulse" /> Live
+            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-success/10 border border-success/20">
+              <span className="relative flex size-2">
+                <span className="absolute inline-flex h-full w-full rounded-full bg-success opacity-60 animate-ping" />
+                <span className="relative inline-flex rounded-full size-2 bg-success" />
+              </span>
+              <span className="text-[11px] font-bold uppercase tracking-wider text-success">
+                Mesh live
+              </span>
             </div>
-          </CardHeader>
-          <CardContent className="p-0">
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead className="text-xs uppercase tracking-wider text-muted-foreground bg-muted/40">
-                  <tr>
-                    <th className="text-left font-medium px-6 py-3">ID</th>
-                    <th className="text-left font-medium px-6 py-3">Applicant</th>
-                    <th className="text-left font-medium px-6 py-3">Amount</th>
-                    <th className="text-left font-medium px-6 py-3">Current Agent</th>
-                    <th className="text-left font-medium px-6 py-3">Risk</th>
-                    <th className="text-left font-medium px-6 py-3">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {apps.map((a) => {
-                    const Meta =
-                      agentMeta[a.currentAgent as keyof typeof agentMeta] ?? agentMeta.done;
-                    return (
-                      <tr
-                        key={a.id}
-                        className="border-t border-border/70 hover:bg-muted/30 transition-colors"
-                      >
-                        <td className="px-6 py-4 font-mono text-xs text-muted-foreground">
-                          {a.id}
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="font-medium">{a.applicant.name}</div>
-                          <div className="text-xs text-muted-foreground">{a.applicant.email}</div>
-                        </td>
-                        <td className="px-6 py-4 tabular-nums">
-                          ₹{a.applicant.loanAmount.toLocaleString("en-IN")}
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="inline-flex items-center gap-2 text-xs">
-                            <span className="size-6 rounded-md bg-primary/10 text-primary grid place-items-center">
-                              <Meta.icon className="size-3.5" />
-                            </span>
-                            {Meta.label}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <RiskPill score={a.riskScore} />
-                        </td>
-                        <td className="px-6 py-4">
-                          <StatusBadge status={a.status} />
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </CardContent>
-        </Card>
+          </div>
 
-        <section className="grid md:grid-cols-2 gap-4">
-          <Card className="border-border/70">
-            <CardHeader>
-              <CardTitle className="text-base flex items-center gap-2">
-                <Bot className="size-4 text-primary" /> Agent Mesh
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="grid grid-cols-2 gap-3">
-              {(["ingestion", "credit", "underwriter", "decision"] as const).map((k) => {
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground bg-muted/40">
+                <tr>
+                  <th className="text-left font-semibold px-6 md:px-8 py-3.5">Ref</th>
+                  <th className="text-left font-semibold px-6 py-3.5">Applicant</th>
+                  <th className="text-left font-semibold px-6 py-3.5">Amount</th>
+                  <th className="text-left font-semibold px-6 py-3.5">Current Agent</th>
+                  <th className="text-left font-semibold px-6 py-3.5 min-w-[180px]">Risk Index</th>
+                  <th className="text-left font-semibold px-6 md:px-8 py-3.5">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {apps.map((a) => {
+                  const Meta =
+                    agentMeta[a.currentAgent as keyof typeof agentMeta] ?? agentMeta.done;
+                  const initials = a.applicant.name
+                    .split(" ")
+                    .map((w) => w[0])
+                    .slice(0, 2)
+                    .join("");
+                  return (
+                    <tr
+                      key={a.id}
+                      className="border-t border-border hover:bg-muted/30 transition-colors group"
+                    >
+                      <td className="px-6 md:px-8 py-4">
+                        <span className="font-mono text-[11px] text-foreground/70 bg-muted px-2 py-1 rounded-md">
+                          {a.id}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-3">
+                          <div className="size-9 rounded-full bg-gradient-to-br from-foreground to-foreground/70 text-background grid place-items-center text-[11px] font-bold">
+                            {initials}
+                          </div>
+                          <div>
+                            <div className="font-semibold text-foreground">
+                              {a.applicant.name}
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                              {a.applicant.email}
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 tabular-nums font-semibold">
+                        ₹{a.applicant.loanAmount.toLocaleString("en-IN")}
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="inline-flex items-center gap-2 text-xs">
+                          <span className="size-7 rounded-lg bg-foreground/[0.04] border border-border grid place-items-center">
+                            <Meta.icon className="size-3.5 text-foreground/80" />
+                          </span>
+                          <span className="font-medium text-foreground/80">
+                            {Meta.label}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <RiskPill score={a.riskScore} />
+                      </td>
+                      <td className="px-6 md:px-8 py-4">
+                        <StatusBadge status={a.status} />
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="px-6 md:px-8 py-4 border-t border-border bg-muted/20 flex items-center justify-between">
+            <span className="text-xs text-muted-foreground">
+              Showing {apps.length} of {apps.length} active applications
+            </span>
+            <Link
+              to="/process"
+              className="text-xs font-semibold uppercase tracking-wider text-foreground hover:text-foreground/70 inline-flex items-center gap-1"
+            >
+              Process new <ArrowRight className="size-3" />
+            </Link>
+          </div>
+        </section>
+
+        <section className="grid md:grid-cols-3 gap-4">
+          <div className="md:col-span-2 bg-card border border-border rounded-3xl p-6 md:p-8">
+            <div className="flex items-center justify-between mb-5">
+              <div>
+                <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground font-semibold">
+                  System health
+                </div>
+                <h3 className="font-display text-lg font-semibold tracking-tight mt-1 flex items-center gap-2">
+                  <Bot className="size-4" /> Agent Mesh
+                </h3>
+              </div>
+              <span className="inline-flex items-center gap-1.5 text-xs text-success font-semibold">
+                <Activity className="size-3.5" /> All agents online
+              </span>
+            </div>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+              {(["ingestion", "credit", "underwriter", "decision"] as const).map((k, i) => {
                 const Meta = agentMeta[k];
                 return (
                   <div
                     key={k}
-                    className="rounded-lg border border-border/70 p-3 flex items-center gap-3"
+                    className="relative rounded-2xl border border-border p-4 bg-gradient-to-br from-card to-muted/20 hover:border-foreground/30 transition-all"
                   >
-                    <span className="size-9 rounded-md bg-primary/10 text-primary grid place-items-center">
-                      <Meta.icon className="size-4" />
-                    </span>
-                    <div>
-                      <div className="text-sm font-medium">{Meta.label} Agent</div>
-                      <div className="text-xs text-muted-foreground">Idle · Healthy</div>
+                    <div className="flex items-center justify-between">
+                      <span className="size-9 rounded-xl bg-foreground text-background grid place-items-center">
+                        <Meta.icon className="size-4" />
+                      </span>
+                      <span className="text-[10px] font-mono text-muted-foreground">
+                        0{i + 1}
+                      </span>
+                    </div>
+                    <div className="mt-3 text-sm font-semibold leading-tight">
+                      {Meta.label}
+                    </div>
+                    <div className="mt-1 flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                      <span className="size-1.5 rounded-full bg-success" /> Idle · Healthy
                     </div>
                   </div>
                 );
               })}
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
-          <Card className="border-border/70" style={{ backgroundImage: "var(--gradient-surface)" }}>
-            <CardHeader>
-              <CardTitle className="text-base">Tune underwriting policy</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">
-                Adjust score, DTI and loan caps in the sandbox to see how active applications
-                re-decision in real time.
+          <div
+            className="relative overflow-hidden rounded-3xl border border-border p-6 md:p-8 bg-foreground text-background"
+            style={{ backgroundImage: "var(--gradient-ink)" }}
+          >
+            <div className="absolute -top-16 -right-16 size-48 rounded-full bg-accent/30 blur-3xl" />
+            <div className="relative">
+              <div className="text-[10px] uppercase tracking-[0.18em] text-background/60 font-semibold">
+                Underwriting policy
+              </div>
+              <h3 className="font-display text-2xl font-semibold mt-2 leading-tight">
+                Tune the rules. Watch every decision re-flow.
+              </h3>
+              <p className="text-sm text-background/70 mt-3 leading-relaxed">
+                Drag sliders for min credit score, max loan and DTI cap — applications
+                re-decision in real time across the mesh.
               </p>
-              <Button asChild variant="secondary" className="mt-4">
+              <Button
+                asChild
+                className="mt-6 rounded-full bg-accent text-accent-foreground hover:bg-accent/90"
+              >
                 <Link to="/sandbox">
                   Open Sandbox <ArrowRight className="size-4" />
                 </Link>
               </Button>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </section>
       </div>
     </AppShell>
@@ -212,25 +311,55 @@ function Dashboard() {
 function MetricCard({
   label,
   value,
+  delta,
+  trend,
   icon: Icon,
-  tint,
+  tone,
+  accent,
 }: {
   label: string;
   value: number;
+  delta: string;
+  trend: "up" | "down" | "flat";
   icon: React.ComponentType<{ className?: string }>;
-  tint: string;
+  tone?: "success" | "destructive";
+  accent?: boolean;
 }) {
+  const TrendIcon = trend === "up" ? TrendingUp : trend === "down" ? TrendingDown : Activity;
+  const trendCls =
+    trend === "up"
+      ? "text-success"
+      : trend === "down"
+        ? "text-destructive"
+        : "text-muted-foreground";
+  const iconCls =
+    tone === "success"
+      ? "bg-success/10 text-success"
+      : tone === "destructive"
+        ? "bg-destructive/10 text-destructive"
+        : accent
+          ? "bg-accent text-accent-foreground"
+          : "bg-foreground text-background";
+
   return (
-    <Card className="border-border/70">
-      <CardContent className="p-5 flex items-center justify-between">
-        <div>
-          <div className="text-xs uppercase tracking-wider text-muted-foreground">{label}</div>
-          <div className="text-3xl font-semibold tabular-nums mt-1.5">{value}</div>
-        </div>
-        <span className={`size-11 rounded-xl grid place-items-center ${tint}`}>
+    <div className="group relative bg-card border border-border rounded-2xl p-5 hover:shadow-[var(--shadow-elegant)] hover:-translate-y-0.5 transition-all">
+      <div className="flex items-start justify-between">
+        <span className={`size-10 rounded-xl grid place-items-center ${iconCls}`}>
           <Icon className="size-5" />
         </span>
-      </CardContent>
-    </Card>
+        <span className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground font-semibold text-right max-w-[110px] leading-tight">
+          {label}
+        </span>
+      </div>
+      <div className="mt-5 flex items-end justify-between gap-2">
+        <div className="font-display text-4xl font-semibold tabular-nums leading-none">
+          {value}
+        </div>
+        <div className={`inline-flex items-center gap-1 text-[11px] font-bold ${trendCls}`}>
+          <TrendIcon className="size-3" />
+          {delta}
+        </div>
+      </div>
+    </div>
   );
 }
